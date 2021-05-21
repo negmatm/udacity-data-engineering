@@ -1,40 +1,86 @@
 # Define drop table sql script variables
 
-songplay_table_drop = "DROP TABLE IF EXISTS Fact_Song_Plays"
-user_table_drop = "DROP TABLE IF EXISTS Dim_Users"
-song_table_drop = "DROP TABLE IF EXISTS Dim_Songs"
-artist_table_drop = "DROP TABLE IF EXISTS Dim_Artists"
-time_table_drop = "DROP TABLE IF EXISTS Dim_Time"
+songplay_table_drop = "DROP TABLE IF EXISTS songplays"
+user_table_drop = "DROP TABLE IF EXISTS users"
+song_table_drop = "DROP TABLE IF EXISTS songs"
+artist_table_drop = "DROP TABLE IF EXISTS artists"
+time_table_drop = "DROP TABLE IF EXISTS time"
 
 # Define create table sql script variables
 
-songplay_table_create = ("CREATE TABLE IF NOT EXISTS Fact_Song_Plays(SongPlay_ID SERIAL PRIMARY KEY, Start_Time TIMESTAMP NOT NULL, User_ID VARCHAR NOT NULL, Level VARCHAR, Song_ID VARCHAR, Artist_ID VARCHAR, Session_ID INT, Location VARCHAR, User_Agent VARCHAR )")
+songplay_table_create = ("""
+    CREATE TABLE IF NOT EXISTS songplays (
+        songplay_id SERIAL PRIMARY KEY, 
+        start_time  TIMESTAMP NOT NULL, 
+        user_id     VARCHAR NOT NULL, 
+        level       VARCHAR, 
+        song_id     VARCHAR, 
+        artist_id   VARCHAR, 
+        session_id  INT, 
+        location    VARCHAR, 
+        user_agent  VARCHAR
+        );
+""")
 
-user_table_create = ("CREATE TABLE IF NOT EXISTS Dim_Users(User_ID VARCHAR PRIMARY KEY, First_Name VARCHAR, Last_Name VARCHAR, Gender CHAR, Level VARCHAR)")
+user_table_create = ("""
+    CREATE TABLE IF NOT EXISTS users (
+        user_id VARCHAR PRIMARY KEY, 
+        first_name VARCHAR, 
+        last_name VARCHAR, 
+        gender CHAR,
+        level VARCHAR
+        );
+""")
+    
+song_table_create = ("""
+    CREATE TABLE IF NOT EXISTS songs (
+        song_id VARCHAR PRIMARY KEY, 
+        title VARCHAR, 
+        artist_id VARCHAR, 
+        year INT, 
+        duration NUMERIC
+        );
+""")
 
-song_table_create = ("CREATE TABLE IF NOT EXISTS Dim_Songs(Song_ID VARCHAR PRIMARY KEY, Title VARCHAR, Artist_ID VARCHAR, Year INT, Duration NUMERIC)")
+artist_table_create = ("""
+    CREATE TABLE IF NOT EXISTS artists (
+        artist_id VARCHAR PRIMARY KEY, 
+        name VARCHAR, 
+        location VARCHAR, 
+        latitude NUMERIC, 
+        longitude NUMERIC
+        );
+""")
 
-artist_table_create = ("CREATE TABLE IF NOT EXISTS Dim_Artists(Artist_ID VARCHAR PRIMARY KEY, Name VARCHAR, Location VARCHAR, Latitude NUMERIC, Longitude NUMERIC)")
-
-time_table_create = ("CREATE TABLE IF NOT EXISTS Dim_Time(Start_Time TIMESTAMP PRIMARY KEY, Hour INT, Day INT, weekday INT, Week INT, Month INT, Year INT)")
+time_table_create = ("""
+    CREATE TABLE IF NOT EXISTS time (
+        start_time TIMESTAMP PRIMARY KEY, 
+        hour INT, 
+        day INT, 
+        weekday INT, 
+        week INT, 
+        month INT, 
+        year INT
+        );
+""")
 
 # Define insert sql script variables
 
-songplay_table_insert = ("INSERT INTO Fact_Song_Plays(Start_Time, User_ID, Level, Song_ID, Artist_ID, Session_ID, Location, User_Agent) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)")
+songplay_table_insert = ("INSERT INTO songplays(start_time, user_id, level, song_id, artist_id, session_id, location, user_agent) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)")
 
-user_table_insert = ("INSERT INTO Dim_Users(User_ID, First_Name, Last_Name, Gender, Level) VALUES(%s, %s, %s, %s, %s) ON CONFLICT (User_ID) DO NOTHING")
+user_table_insert = ("INSERT INTO users(user_id, first_name, last_name, gender, level) VALUES(%s, %s, %s, %s, %s) ON CONFLICT (user_id) DO UPDATE SET level = EXCLUDED.level")
 
-song_table_insert = ("INSERT INTO Dim_Songs(Song_ID, Title, Artist_ID, Year, Duration) VALUES(%s, %s, %s, %s, %s) ON CONFLICT (Song_ID) DO NOTHING")
+song_table_insert = ("INSERT INTO songs(song_id, title, artist_id, year, duration) VALUES(%s, %s, %s, %s, %s) ON CONFLICT (Song_ID) DO NOTHING")
 
-artist_table_insert = ("INSERT INTO Dim_Artists(Artist_ID, Name, Location, Latitude, Longitude) VALUES(%s, %s, %s, %s, %s) ON CONFLICT (Artist_ID) DO NOTHING")
+artist_table_insert = ("INSERT INTO artists(artist_id, name, location, latitude, longitude) VALUES(%s, %s, %s, %s, %s) ON CONFLICT (artist_id) DO NOTHING")
 
-time_table_insert = ("INSERT INTO Dim_Time(Start_Time, Hour, Day, Week, Month, Year, WeekDay) VALUES(%s, %s, %s, %s, %s, %s, %s) ON CONFLICT (Start_Time) DO NOTHING")
+time_table_insert = ("INSERT INTO time(start_time, hour, day, weekday, week, month, year) VALUES(%s, %s, %s, %s, %s, %s, %s) ON CONFLICT (Start_Time) DO NOTHING")
 
 # Define select sql script variable for getting song_id and artist_id from song and artist dimension tables, respectively
 
-song_select = ("SELECT Dim_Songs.Song_ID, Dim_Artists.Artist_ID FROM (Dim_Songs JOIN Dim_Artists ON \
-                Dim_Songs.Artist_ID = Dim_Artists.Artist_ID) \
-                WHERE Dim_Songs.Title = %s AND Dim_Artists.Name = %s AND Dim_Songs.Duration = %s") 
+song_select = ("SELECT songs.song_id, artists.artist_id FROM (songs JOIN artists ON \
+                songs.artist_id = artists.artist_id) \
+                WHERE songs.title = %s AND artists.name = %s AND songs.duration = %s") 
 
 # Define create and drop query lists
 
